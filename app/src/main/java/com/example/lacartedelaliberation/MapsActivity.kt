@@ -91,9 +91,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         // use your location object
                         // get latitude , longitude and other info from this
                         Log.d("STATE", location.toString())
-                        val home = LatLng(location.latitude, location.longitude)
-                        mMap.addMarker(MarkerOptions().position(home).title("Marker in Sydney"))
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(home))
+                        val me = LatLng(location.latitude, location.longitude)
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(me))
+                        mMap.animateCamera(
+                            CameraUpdateFactory.newLatLngZoom(
+                                LatLng(
+                                    location.latitude,
+                                    location.longitude
+                                ), 10.0f
+                            )
+                        )
+                        mMap.addMarker(MarkerOptions().position(me).title("Me"))
                     }
                 }
 
@@ -115,11 +123,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
     }
 
     fun onLocationResult(locationResult: LocationResult?) {
@@ -131,6 +134,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 locationResult.lastLocation
             // use your location object
             // get latitude , longitude and other info from this
+
             Log.d("STATE", location.toString())
         }
 
