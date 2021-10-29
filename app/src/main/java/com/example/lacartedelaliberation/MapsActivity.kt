@@ -28,6 +28,7 @@ import com.example.lacartedelaliberation.BuildConfig.DEBUG
 import com.google.android.gms.location.*
 import java.lang.Exception
 import android.content.Intent
+import android.text.Editable
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.*
@@ -107,7 +108,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 LatLng(
                                     location.latitude,
                                     location.longitude
-                                ), 10.0f
+                                ), 17.0f
                             )
                         )
                         mMap.addMarker(MarkerOptions().position(me).title("Me"))
@@ -123,6 +124,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val textTitle = findViewById<TextView>(R.id.TextCaptureOrFree)
         val latitude = findViewById<EditText>(R.id.latitude)
         val longitude = findViewById<EditText>(R.id.longitude)
+        val create = findViewById<Button>(R.id.create)
 
         free.setOnClickListener { v ->
             latitude.hint = myPosition.latitude.toString()
@@ -159,6 +161,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_left)
                 textTitle.text = "Merci d'indiquer le point de capture"
                 pop_up.startAnimation(animation)
+            }
+        }
+
+        create.setOnClickListener { v ->
+            var lat = latitude.text.toString().toDouble()
+            var lon = longitude.text.toString().toDouble()
+            if (lat == 0.0) lat = latitude.hint.toString().toDouble()
+            if (lon == 0.0) lon = longitude.hint.toString().toDouble()
+            if (textTitle.text == "Merci d'indiquer le point de libération") {
+                //TO DO: add to liberation data
+            } else {
+                //TO DO: add to prison data
             }
         }
 
