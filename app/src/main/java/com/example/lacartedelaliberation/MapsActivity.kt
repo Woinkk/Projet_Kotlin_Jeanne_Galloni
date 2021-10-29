@@ -124,19 +124,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
     }
 
-    /*fun onLocationResult(locationResult: LocationResult?) {
-        locationResult ?: return
-
-        if (locationResult.locations.isNotEmpty()) {
-            // get latest location
-            val location =
-                locationResult.lastLocation
-            // use your location object
-            // get latitude , longitude and other info from this
-
-        }
-    }*/
-
     //start location updates
     private fun startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(
