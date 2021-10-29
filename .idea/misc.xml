@@ -4,7 +4,9 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Android_Projects/Nains/La-carte-de-la-liberation/app/src/main/res/drawable/rounded_corner.xml" value="0.2703125" />
-        <entry key="..\:/Android_Projects/Nains/La-carte-de-la-liberation/app/src/main/res/layout/activity_maps.xml" value="0.25416666666666665" />
+        <entry key="..\:/Android_Projects/Nains/La-carte-de-la-liberation/app/src/main/res/drawable/rounded_corner_black_background.xml" value="0.2703125" />
+        <entry key="..\:/Android_Projects/Nains/La-carte-de-la-liberation/app/src/main/res/drawable/rounder_corner_black_background.xml" value="0.2703125" />
+        <entry key="..\:/Android_Projects/Nains/La-carte-de-la-liberation/app/src/main/res/layout/activity_maps.xml" value="0.264" />
       </map>
     </option>
   </component>
