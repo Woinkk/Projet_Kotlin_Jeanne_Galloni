@@ -1,58 +1,35 @@
 package com.example.lacartedelaliberation
 
-import android.Manifest
-import android.R.attr
-import android.annotation.SuppressLint
-import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
+//import android.location.LocationRequest
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.LocationManager
+import android.os.Build
+import android.os.Bundle
+import android.util.Log
+import android.util.Xml
+import android.view.View
+import android.view.animation.AnimationUtils
+import android.widget.*
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.example.lacartedelaliberation.databinding.ActivityMapsBinding
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.example.lacartedelaliberation.databinding.ActivityMapsBinding
-import androidx.core.app.ActivityCompat
-
-import android.content.pm.PackageManager
-import android.location.LocationManager
-//import android.location.LocationRequest
-import android.os.Build
-import android.util.Log
-import android.util.Log.DEBUG
-import androidx.annotation.RequiresApi
-
-import androidx.core.content.ContextCompat
-import com.example.lacartedelaliberation.BuildConfig.DEBUG
-import com.google.android.gms.location.*
-import java.lang.Exception
-import android.util.Xml
-
-import org.xmlpull.v1.XmlSerializer
-import android.R.attr.data
-import android.widget.Toast
-
-import android.content.Intent
-import android.text.Editable
-import android.view.View
-import android.view.animation.AnimationUtils
-import android.widget.*
-import com.example.lacartedelaliberation.R.id.TextCaptureOrFree
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import android.os.Environment
-import android.R.attr.data
-import java.lang.Boolean
-import android.R.attr.data
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
 import org.w3c.dom.Document
-import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 import java.io.*
+import java.lang.Boolean
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.Transformer
@@ -65,6 +42,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
+
     // declare a global variable FusedLocationProviderClient
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -75,13 +53,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     // globally declare LocationCallback
     private lateinit var locationCallback: LocationCallback
 
-    var fileName: String = "markers26.xml"
+    var fileName: String = "markers.xml"
 
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var myPosition: LatLng = LatLng(-14.19782, -62.96149)
+        var myPosition = LatLng(-14.19782, -62.96149)
 
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -110,13 +88,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         //Create the markers.xml file if the file doesn't exists
         try {
             val checkFile = baseContext.getFileStreamPath(fileName)
-            var fileExists = checkFile.exists()
+            val fileExists = checkFile.exists()
             if (!fileExists) {
-                /*val filePath: String = filesDir.path.toString() + "/" + fileName
-                val f = File(filePath)
-                val test = ArrayList<String>()
-                val gsonPretty = GsonBuilder().setPrettyPrinting().create()
-                f.writeText(gsonPretty.toJson(test))*/
 
                 val fos: FileOutputStream = openFileOutput(fileName, MODE_APPEND)
 
@@ -139,11 +112,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             e.printStackTrace()
         }
 
-        // in onCreate() initialize FusedLocationProviderClient
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        val locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?
-        val locationRequest: LocationRequest = LocationRequest.create().apply {
+        LocationRequest.create().apply {
             locationRequest = LocationRequest()
             interval = 100
             fastestInterval = 50
@@ -159,7 +130,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             locationResult.lastLocation
                         // use your location object
                         // get latitude , longitude and other info from this
-                        //Log.d("STATE", location.toString())
                         val me = LatLng(location.latitude, location.longitude)
                         myPosition = me
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(me))
@@ -171,13 +141,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 ), 17.0f
                             )
                         )
-                        mMap.addMarker(MarkerOptions()
-                            .position(me)
-                            .title("Me")
+                        mMap.addMarker(
+                            MarkerOptions()
+                                .position(me)
+                                .title("Me")
                         )
                     }
                 }
-
             }
         }
 
@@ -196,7 +166,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_right)
                 textTitle.text = "Merci d'indiquer le point de libération"
                 pop_up.startAnimation(animation)
-            } else if(pop_up.visibility == View.VISIBLE) {
+            } else if (pop_up.visibility == View.VISIBLE) {
                 pop_up.visibility = View.INVISIBLE
                 val animation = AnimationUtils.loadAnimation(this, R.anim.slide_out_right)
                 pop_up.startAnimation(animation)
@@ -233,14 +203,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (lat == "") lat = latitude.hint.toString()
             if (lon == "") lon = longitude.hint.toString()
             if (textTitle.text == "Merci d'indiquer le point de libération") {
-                //TO DO: add to liberation data
                 addMarkers(lat, lon, "free")
-                mMap.addMarker(MarkerOptions().position(LatLng(lat.toDouble(), lon.toDouble())).title("free"))
+                mMap.addMarker(
+                    MarkerOptions().position(LatLng(lat.toDouble(), lon.toDouble()))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.free_nain_small))
+                )
                 readSavedMarkers()
             } else {
-                //TO DO: add to prison data
                 addMarkers(lat, lon, "prison")
-                mMap.addMarker(MarkerOptions().position(LatLng(lat.toDouble(), lon.toDouble())).title("prison"))
+                mMap.addMarker(
+                    MarkerOptions().position(LatLng(lat.toDouble(), lon.toDouble()))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.prison_nain_small))
+                )
                 readSavedMarkers()
             }
             pop_up.visibility = View.INVISIBLE
@@ -263,6 +237,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+
+        //get all saved markers and place them on the maps
+        val savedMarkers: MutableList<String> = readSavedMarkers()
+
+        for (i in 1 until savedMarkers.size) {
+            val values = savedMarkers[i].split(",")
+            val lat = values[0]
+            val lng = values[1]
+            val type = values[2]
+
+            if (type != "free") {
+                mMap.addMarker(
+                    MarkerOptions().position(LatLng(lat.toDouble(), lng.toDouble()))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.prison_nain_small))
+                )
+            } else {
+                mMap.addMarker(
+                    MarkerOptions().position(LatLng(lat.toDouble(), lng.toDouble()))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.free_nain_small))
+                )
+            }
+
+        }
     }
 
     //start location updates
@@ -287,27 +284,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient.requestLocationUpdates(
             locationRequest,
             locationCallback,
-            null /* Looper */
+            null
         )
     }
 
-    fun addMarkers(latitude: String, longitude: String, type: String) {
+    private fun addMarkers(latitude: String, longitude: String, type: String) {
         try {
-            /*val filePath: String = filesDir.path.toString() + "/" + fileName
-            val f = File(filePath)
-            Gson().fromJson(f.readText(), ArrayList<String>())
-            val fos: FileOutputStream = openFileOutput("markers2.xml", MODE_APPEND)
-            val serializer = Xml.newSerializer()
-
-            serializer.setOutput(fos, "UTF-8")
-
-            serializer.startTag(null, "marker")
-            serializer.text("$latitude,$longitude,$type")
-            serializer.endTag(null, "marker")
-
-            serializer.flush()
-
-            fos.close()*/
             val filePath: String = filesDir.path.toString() + "/" + fileName
             val f = File(filePath)
             val documentBuilderFactory = DocumentBuilderFactory.newInstance()
@@ -326,54 +308,44 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val transformer: Transformer = transformerFactory.newTransformer()
             val result = StreamResult(f)
             transformer.transform(source, result)
-
         } catch (e: Exception) {
             e.printStackTrace();
         }
     }
 
-    fun readSavedMarkers() {
+    private fun readSavedMarkers(): MutableList<String> {
+        val arr: MutableList<String> = mutableListOf()
         try {
-            var fis: FileInputStream? = null
-            var isr: InputStreamReader? = null
-
-            fis = this.openFileInput(fileName)
-            isr = InputStreamReader(fis)
+            val fis: FileInputStream = this.openFileInput(fileName)
+            val isr = InputStreamReader(fis)
 
             val inputBuffer = CharArray(fis.available())
             isr.read(inputBuffer)
 
             val data = String(inputBuffer)
-            Log.d("STATE", data)
             isr.close()
             fis.close()
 
-
-            /*
-            * Converting the String data to XML format so
-            * that the DOM parser understands it as an XML input.
-            */
             val file: InputStream = ByteArrayInputStream(data.toByteArray())
 
             val dbf: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
             val db: DocumentBuilder = dbf.newDocumentBuilder()
 
-            var items: NodeList? = null
+            val items: NodeList?
             val dom: Document = db.parse(file)
 
             // Normalize the document
             dom.documentElement.normalize()
 
             items = dom.getElementsByTagName("marker")
-            val arr = ArrayList<String>()
 
             for (i in 0 until items.length) {
                 val item: Node = items.item(i)
                 arr.add(item.textContent)
             }
-            Log.d("STATE", arr.toString());
         } catch (e: IOException) {
             e.printStackTrace()
         }
+        return arr;
     }
 }
