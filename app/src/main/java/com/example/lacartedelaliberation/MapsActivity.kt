@@ -1,6 +1,7 @@
 package com.example.lacartedelaliberation
 
 import android.Manifest
+import android.R.attr
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -26,6 +27,22 @@ import androidx.core.content.ContextCompat
 import com.example.lacartedelaliberation.BuildConfig.DEBUG
 import com.google.android.gms.location.*
 import java.lang.Exception
+import android.util.Xml
+
+import org.xmlpull.v1.XmlSerializer
+import android.R.attr.data
+import android.widget.Toast
+
+import android.os.Environment
+import android.R.attr.data
+import java.lang.Boolean
+import android.R.attr.data
+import org.w3c.dom.Document
+import org.w3c.dom.Node
+import org.w3c.dom.NodeList
+import java.io.*
+import javax.xml.parsers.DocumentBuilder
+import javax.xml.parsers.DocumentBuilderFactory
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -90,7 +107,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             locationResult.lastLocation
                         // use your location object
                         // get latitude , longitude and other info from this
-                        Log.d("STATE", location.toString())
+                        //Log.d("STATE", location.toString())
                         val me = LatLng(location.latitude, location.longitude)
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(me))
                         mMap.animateCamera(
@@ -109,6 +126,72 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         startLocationUpdates()
+
+        /*try {
+            var checkFile = File("markers.xml")
+            var fileExists = checkFile.exists()
+            if (!fileExists) {
+                val fos: FileOutputStream = openFileOutput("markers.xml", MODE_APPEND)
+
+                val serializer = Xml.newSerializer()
+                serializer.setOutput(fos, "UTF-8")
+                serializer.startDocument(null, Boolean.valueOf(true))
+                serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true)
+
+                serializer.endDocument()
+                serializer.flush()
+
+                fos.close()
+            }
+
+            val serializer = Xml.newSerializer()
+            serializer.setOutput(fos, "UTF-8")
+            serializer.startDocument(null, Boolean.valueOf(true))
+                serializer.startTag(null, "marker")
+                serializer.text("lat,lng")
+                serializer.endTag(null, "marker")
+
+            var fis: FileInputStream? = null
+            var isr: InputStreamReader? = null
+
+            fis = this.openFileInput("test9.xml")
+            isr = InputStreamReader(fis)
+
+            val inputBuffer = CharArray(fis.available())
+            isr.read(inputBuffer)
+
+            val data = String(inputBuffer)
+            Log.d("STATE", data)
+            isr.close()
+            fis.close()
+
+
+            /*
+            * Converting the String data to XML format so
+            * that the DOM parser understands it as an XML input.
+            */
+            val file: InputStream = ByteArrayInputStream(data.toByteArray())
+
+            val dbf: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
+            val db: DocumentBuilder = dbf.newDocumentBuilder()
+
+            var items: NodeList? = null
+            val dom: Document = db.parse(file)
+
+            // Normalize the document
+            dom.documentElement.normalize()
+
+            items = dom.getElementsByTagName("marker")
+            val arr = ArrayList<String>()
+
+            for (i in 0 until items.length) {
+                val item: Node = items.item(i)
+                arr.add(item.textContent)
+            }
+            Log.d("STATE", arr.toString());
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }*/
     }
 
     /**
@@ -148,5 +231,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             locationCallback,
             null /* Looper */
         )
+    }
+
+    fun addMarkers() {
+
     }
 }
