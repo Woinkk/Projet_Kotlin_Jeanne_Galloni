@@ -24,7 +24,6 @@ import android.util.Log.DEBUG
 import androidx.annotation.RequiresApi
 
 import androidx.core.content.ContextCompat
-import com.example.lacartedelaliberation.BuildConfig.DEBUG
 import com.google.android.gms.location.*
 import java.lang.Exception
 import android.content.Intent
@@ -33,6 +32,7 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.*
 import com.example.lacartedelaliberation.R.id.TextCaptureOrFree
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -111,7 +111,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 ), 17.0f
                             )
                         )
-                        mMap.addMarker(MarkerOptions().position(me).title("Me"))
+                        mMap.addMarker(MarkerOptions()
+                            .position(me)
+                            .title("Me")
+                        )
                     }
                 }
 
@@ -165,15 +168,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         create.setOnClickListener { v ->
-            var lat = latitude.text.toString().toDouble()
-            var lon = longitude.text.toString().toDouble()
-            if (lat == 0.0) lat = latitude.hint.toString().toDouble()
-            if (lon == 0.0) lon = longitude.hint.toString().toDouble()
+            var lat = latitude.text.toString()
+            var lon = longitude.text.toString()
+            if (lat == "") lat = latitude.hint.toString()
+            if (lon == "") lon = longitude.hint.toString()
             if (textTitle.text == "Merci d'indiquer le point de libération") {
                 //TO DO: add to liberation data
             } else {
                 //TO DO: add to prison data
             }
+            pop_up.visibility = View.INVISIBLE
+            val animation = AnimationUtils.loadAnimation(this, R.anim.exit_top)
+            pop_up.startAnimation(animation)
+
         }
 
         startLocationUpdates()
