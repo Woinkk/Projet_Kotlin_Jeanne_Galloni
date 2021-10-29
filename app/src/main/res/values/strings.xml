@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Lacartedelaliberation</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="xml_file">markers3.xml</string>
 </resources>

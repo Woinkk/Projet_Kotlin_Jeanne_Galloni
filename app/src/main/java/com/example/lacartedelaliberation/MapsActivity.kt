@@ -44,12 +44,20 @@ import android.os.Environment
 import android.R.attr.data
 import java.lang.Boolean
 import android.R.attr.data
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import org.w3c.dom.Document
+import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 import java.io.*
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.Transformer
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -65,6 +73,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // globally declare LocationCallback
     private lateinit var locationCallback: LocationCallback
+
+    var fileName: String = "markers26.xml"
 
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,6 +101,38 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                     101
                 )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        //Create the markers.xml file if the file doesn't exists
+        try {
+            val checkFile = baseContext.getFileStreamPath(fileName)
+            var fileExists = checkFile.exists()
+            if (!fileExists) {
+                /*val filePath: String = filesDir.path.toString() + "/" + fileName
+                val f = File(filePath)
+                val test = ArrayList<String>()
+                val gsonPretty = GsonBuilder().setPrettyPrinting().create()
+                f.writeText(gsonPretty.toJson(test))*/
+
+                val fos: FileOutputStream = openFileOutput(fileName, MODE_APPEND)
+
+                val serializer = Xml.newSerializer()
+                serializer.setOutput(fos, "UTF-8")
+                serializer.startDocument(null, Boolean.valueOf(true))
+                serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true)
+
+                serializer.startTag(null, "root")
+                serializer.startTag(null, "marker")
+                serializer.text("test")
+                serializer.endTag(null, "marker")
+
+                serializer.endDocument()
+                serializer.flush()
+
+                fos.close()
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -182,84 +224,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         create.setOnClickListener { v ->
-            var lat = latitude.text.toString().toDouble()
-            var lon = longitude.text.toString().toDouble()
-            if (lat == 0.0) lat = latitude.hint.toString().toDouble()
-            if (lon == 0.0) lon = longitude.hint.toString().toDouble()
+            var lat = latitude.text.toString()
+            var lon = longitude.text.toString()
+            if (lat == "") lat = latitude.hint.toString()
+            if (lon == "") lon = longitude.hint.toString()
             if (textTitle.text == "Merci d'indiquer le point de libération") {
                 //TO DO: add to liberation data
+                addMarkers(lat, lon, "free")
+                mMap.addMarker(MarkerOptions().position(LatLng(lat.toDouble(), lon.toDouble())).title("free"))
+                readSavedMarkers()
             } else {
                 //TO DO: add to prison data
+                addMarkers(lat, lon, "prison")
+                mMap.addMarker(MarkerOptions().position(LatLng(lat.toDouble(), lon.toDouble())).title("prison"))
+                readSavedMarkers()
             }
+            pop_up.visibility = View.INVISIBLE
         }
 
         startLocationUpdates()
-
-        /*try {
-            var checkFile = File("markers.xml")
-            var fileExists = checkFile.exists()
-            if (!fileExists) {
-                val fos: FileOutputStream = openFileOutput("markers.xml", MODE_APPEND)
-
-                val serializer = Xml.newSerializer()
-                serializer.setOutput(fos, "UTF-8")
-                serializer.startDocument(null, Boolean.valueOf(true))
-                serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true)
-
-                serializer.endDocument()
-                serializer.flush()
-
-                fos.close()
-            }
-
-            val serializer = Xml.newSerializer()
-            serializer.setOutput(fos, "UTF-8")
-            serializer.startDocument(null, Boolean.valueOf(true))
-                serializer.startTag(null, "marker")
-                serializer.text("lat,lng")
-                serializer.endTag(null, "marker")
-
-            var fis: FileInputStream? = null
-            var isr: InputStreamReader? = null
-
-            fis = this.openFileInput("test9.xml")
-            isr = InputStreamReader(fis)
-
-            val inputBuffer = CharArray(fis.available())
-            isr.read(inputBuffer)
-
-            val data = String(inputBuffer)
-            Log.d("STATE", data)
-            isr.close()
-            fis.close()
-
-
-            /*
-            * Converting the String data to XML format so
-            * that the DOM parser understands it as an XML input.
-            */
-            val file: InputStream = ByteArrayInputStream(data.toByteArray())
-
-            val dbf: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
-            val db: DocumentBuilder = dbf.newDocumentBuilder()
-
-            var items: NodeList? = null
-            val dom: Document = db.parse(file)
-
-            // Normalize the document
-            dom.documentElement.normalize()
-
-            items = dom.getElementsByTagName("marker")
-            val arr = ArrayList<String>()
-
-            for (i in 0 until items.length) {
-                val item: Node = items.item(i)
-                arr.add(item.textContent)
-            }
-            Log.d("STATE", arr.toString());
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }*/
     }
 
     /**
@@ -301,7 +284,89 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         )
     }
 
-    fun addMarkers() {
+    fun addMarkers(latitude: String, longitude: String, type: String) {
+        try {
+            /*val filePath: String = filesDir.path.toString() + "/" + fileName
+            val f = File(filePath)
+            Gson().fromJson(f.readText(), ArrayList<String>())
+            val fos: FileOutputStream = openFileOutput("markers2.xml", MODE_APPEND)
+            val serializer = Xml.newSerializer()
 
+            serializer.setOutput(fos, "UTF-8")
+
+            serializer.startTag(null, "marker")
+            serializer.text("$latitude,$longitude,$type")
+            serializer.endTag(null, "marker")
+
+            serializer.flush()
+
+            fos.close()*/
+            val filePath: String = filesDir.path.toString() + "/" + fileName
+            val f = File(filePath)
+            val documentBuilderFactory = DocumentBuilderFactory.newInstance()
+            val documentBuilder = documentBuilderFactory.newDocumentBuilder()
+            val document = documentBuilder.parse(f)
+            val root: Node = document.firstChild
+
+            val marker = document.createElement("marker")
+            marker.appendChild(document.createTextNode("$latitude,$longitude,$type"))
+
+            root.appendChild(marker)
+
+            val source = DOMSource(document)
+
+            val transformerFactory: TransformerFactory = TransformerFactory.newInstance()
+            val transformer: Transformer = transformerFactory.newTransformer()
+            val result = StreamResult(f)
+            transformer.transform(source, result)
+
+        } catch (e: Exception) {
+            e.printStackTrace();
+        }
+    }
+
+    fun readSavedMarkers() {
+        try {
+            var fis: FileInputStream? = null
+            var isr: InputStreamReader? = null
+
+            fis = this.openFileInput(fileName)
+            isr = InputStreamReader(fis)
+
+            val inputBuffer = CharArray(fis.available())
+            isr.read(inputBuffer)
+
+            val data = String(inputBuffer)
+            Log.d("STATE", data)
+            isr.close()
+            fis.close()
+
+
+            /*
+            * Converting the String data to XML format so
+            * that the DOM parser understands it as an XML input.
+            */
+            val file: InputStream = ByteArrayInputStream(data.toByteArray())
+
+            val dbf: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
+            val db: DocumentBuilder = dbf.newDocumentBuilder()
+
+            var items: NodeList? = null
+            val dom: Document = db.parse(file)
+
+            // Normalize the document
+            dom.documentElement.normalize()
+
+            items = dom.getElementsByTagName("marker")
+            val arr = ArrayList<String>()
+
+            for (i in 0 until items.length) {
+                val item: Node = items.item(i)
+                arr.add(item.textContent)
+            }
+            Log.d("STATE", arr.toString());
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
     }
 }
