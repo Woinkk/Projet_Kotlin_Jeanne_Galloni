@@ -107,7 +107,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             }
         }
-        Log.d("STATE", locationManager?.getProviders(true).toString())
 
         startLocationUpdates()
     }
@@ -125,7 +124,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
     }
 
-    fun onLocationResult(locationResult: LocationResult?) {
+    /*fun onLocationResult(locationResult: LocationResult?) {
         locationResult ?: return
 
         if (locationResult.locations.isNotEmpty()) {
@@ -135,11 +134,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             // use your location object
             // get latitude , longitude and other info from this
 
-            Log.d("STATE", location.toString())
         }
-
-
-    }
+    }*/
 
     //start location updates
     private fun startLocationUpdates() {
