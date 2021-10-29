@@ -91,6 +91,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         // use your location object
                         // get latitude , longitude and other info from this
                         Log.d("STATE", location.toString())
+                        val home = LatLng(location.latitude, location.longitude)
+                        mMap.addMarker(MarkerOptions().position(home).title("Marker in Sydney"))
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(home))
                     }
                 }
 
