@@ -40,6 +40,7 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.*
 import com.example.lacartedelaliberation.R.id.TextCaptureOrFree
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import android.os.Environment
 import android.R.attr.data
 import java.lang.Boolean
@@ -170,7 +171,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 ), 17.0f
                             )
                         )
-                        mMap.addMarker(MarkerOptions().position(me).title("Me"))
+                        mMap.addMarker(MarkerOptions()
+                            .position(me)
+                            .title("Me")
+                        )
                     }
                 }
 
@@ -240,6 +244,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 readSavedMarkers()
             }
             pop_up.visibility = View.INVISIBLE
+            val animation = AnimationUtils.loadAnimation(this, R.anim.exit_top)
+            pop_up.startAnimation(animation)
+
         }
 
         startLocationUpdates()
