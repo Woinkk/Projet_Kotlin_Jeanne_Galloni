@@ -1,6 +1,7 @@
 package com.example.lacartedelaliberation
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -26,6 +27,11 @@ import androidx.core.content.ContextCompat
 import com.example.lacartedelaliberation.BuildConfig.DEBUG
 import com.google.android.gms.location.*
 import java.lang.Exception
+import android.content.Intent
+import android.view.View
+import android.view.animation.AnimationUtils
+import android.widget.*
+import com.example.lacartedelaliberation.R.id.TextCaptureOrFree
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -46,12 +52,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        var myPosition: LatLng = LatLng(-14.19782, -62.96149)
+
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
-                .findFragmentById(R.id.map) as SupportMapFragment
+            .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         try {
@@ -79,7 +87,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             interval = 100
             fastestInterval = 50
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            maxWaitTime= 100
+            maxWaitTime = 100
             locationCallback = object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult?) {
                     locationResult ?: return
@@ -92,6 +100,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         // get latitude , longitude and other info from this
                         Log.d("STATE", location.toString())
                         val me = LatLng(location.latitude, location.longitude)
+                        myPosition = me
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(me))
                         mMap.animateCamera(
                             CameraUpdateFactory.newLatLngZoom(
@@ -105,6 +114,51 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                 }
 
+            }
+        }
+
+        val free = findViewById<ImageButton>(R.id.free)
+        val prison = findViewById<ImageButton>(R.id.prison)
+        val pop_up = findViewById<LinearLayout>(R.id.pop_up)
+        val textTitle = findViewById<TextView>(R.id.TextCaptureOrFree)
+        val latitude = findViewById<EditText>(R.id.latitude)
+        val longitude = findViewById<EditText>(R.id.longitude)
+
+        free.setOnClickListener { v ->
+            latitude.hint = myPosition.latitude.toString()
+            longitude.hint = myPosition.longitude.toString()
+            if (pop_up.visibility == View.VISIBLE && textTitle.text == "Merci d'indiquer le point de capture") {
+                val animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_right)
+                textTitle.text = "Merci d'indiquer le point de libération"
+                pop_up.startAnimation(animation)
+            } else if(pop_up.visibility == View.VISIBLE) {
+                pop_up.visibility = View.INVISIBLE
+                val animation = AnimationUtils.loadAnimation(this, R.anim.slide_out_right)
+                pop_up.startAnimation(animation)
+            } else {
+                pop_up.visibility = View.VISIBLE
+                val animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_right)
+                textTitle.text = "Merci d'indiquer le point de libération"
+                pop_up.startAnimation(animation)
+            }
+        }
+
+        prison.setOnClickListener { v ->
+            latitude.hint = myPosition.latitude.toString()
+            longitude.hint = myPosition.longitude.toString()
+            if (pop_up.visibility == View.VISIBLE && textTitle.text == "Merci d'indiquer le point de libération") {
+                val animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_left)
+                textTitle.text = "Merci d'indiquer le point de capture"
+                pop_up.startAnimation(animation)
+            } else if (pop_up.visibility == View.VISIBLE) {
+                pop_up.visibility = View.INVISIBLE
+                val animation = AnimationUtils.loadAnimation(this, R.anim.slide_out_left)
+                pop_up.startAnimation(animation)
+            } else {
+                pop_up.visibility = View.VISIBLE
+                val animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_left)
+                textTitle.text = "Merci d'indiquer le point de capture"
+                pop_up.startAnimation(animation)
             }
         }
 
